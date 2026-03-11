@@ -1,0 +1,33 @@
+<div>POST to http://localhost:8000/api/rules</div>
+
+<h4>Body</h4>
+<div>
+    <pre class="preformated-text">
+{
+    &quot;name&quot;: &quot;Rule d7e88e&quot;,
+    &quot;dataset_type&quot;: &quot;test_data&quot;,
+    &quot;field_name&quot;: &quot;name&quot;,
+    &quot;rule_type&quot;: &quot;NOT_NULL&quot;,
+    &quot;severity&quot;: &quot;HIGH&quot;
+}    </pre>
+</div>
+
+<h4>Headers</h4>
+<div>
+        <div>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJxYV9lOTI2YjRmOUBkYXRhcHVsc2UuY29tIiwiZXhwIjoxNzczMjY1MjEwfQ.OyINRdbKHBrizXCupAWkk65whkdXYIpFBUjvCOlCLUs</div>
+        <div>Accept: */*</div>
+        <div>Content-Type: application/json</div>
+</div>
+
+
+
+<h4>Curl</h4>
+<div>
+curl -v -X POST &#39;http://localhost:8000/api/rules&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJxYV9lOTI2YjRmOUBkYXRhcHVsc2UuY29tIiwiZXhwIjoxNzczMjY1MjEwfQ.OyINRdbKHBrizXCupAWkk65whkdXYIpFBUjvCOlCLUs&#39; -H &#39;Accept: */*&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;name&quot;: &quot;Rule d7e88e&quot;,
+    &quot;dataset_type&quot;: &quot;test_data&quot;,
+    &quot;field_name&quot;: &quot;name&quot;,
+    &quot;rule_type&quot;: &quot;NOT_NULL&quot;,
+    &quot;severity&quot;: &quot;HIGH&quot;
+}&#39;
+</div>
