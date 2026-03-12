@@ -1,0 +1,98 @@
+name: API Tests + Allure Report
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      publish_only:
+        description: 'Skip tests and just publish existing results'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  # Set PUBLISH_ONLY to 'true' in repo Variables (Settings → Variables → Actions)
+  # to always skip tests and just publish committed results.
+  # Flip it back to 'false' once your API is deployed.
+  PUBLISH_ONLY: ${{ vars.PUBLISH_ONLY || 'true' }}
+
+jobs:
+  test:
+    name: Run API Tests & Publish Allure Report
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run tests
+        if: env.PUBLISH_ONLY != 'true' && github.event.inputs.publish_only != 'true'
+        env:
+          API_URL: ${{ secrets.API_URL }}
+        run: mvn test -B
+        continue-on-error: true
+
+      - name: Skip tests (publish-only mode)
+        if: env.PUBLISH_ONLY == 'true' || github.event.inputs.publish_only == 'true'
+        run: echo "⏭️ Skipping test run — publishing committed allure-results as-is"
+
+      - name: Load previous Allure history
+        uses: actions/checkout@v4
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Copy history into results
+        if: always()
+        run: |
+          if [ -d "gh-pages/history" ]; then
+            mkdir -p target/allure-results/history
+            cp -r gh-pages/history/. target/allure-results/history/
+          fi
+
+      - name: Generate Allure report
+        if: always()
+        uses: simple-elf/allure-report-action@v1.9
+        with:
+          allure_results: target/allure-results
+          allure_report: allure-report
+          allure_history: allure-history
+          keep_reports: 20
+
+      - name: Deploy report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
+
+      - name: Post report URL to summary
+        if: always()
+        run: |
+          REPO="${{ github.repository }}"
+          OWNER=$(echo "$REPO" | cut -d'/' -f1)
+          REPO_NAME=$(echo "$REPO" | cut -d'/' -f2)
+          echo "## 📊 Allure Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View full Allure report](https://${OWNER}.github.io/${REPO_NAME})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$PUBLISH_ONLY" = "true" ]; then
+            echo "> ⚠️ Published from committed results — tests were skipped (API not yet deployed)" >> $GITHUB_STEP_SUMMARY
+          fi
