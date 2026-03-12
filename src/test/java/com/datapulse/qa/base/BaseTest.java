@@ -30,7 +30,7 @@ public abstract class BaseTest {
     // ── Config ────────────────────────────────────────────────────────────────
     protected static final String BASE_URL =
         System.getProperty("API_URL",
-            System.getenv().getOrDefault("API_URL", "http://localhost:8000"));
+            System.getenv().getOrDefault("API_URL", "http://datapulse-alb-prod-253557199.eu-west-1.elb.amazonaws.com/"));
 
     protected static final String TEST_PASSWORD = "QaTest123";
 
