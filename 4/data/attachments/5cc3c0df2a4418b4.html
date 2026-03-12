@@ -1,0 +1,33 @@
+<div>POST to http://datapulse-alb-prod-253557199.eu-west-1.elb.amazonaws.com/api/rules</div>
+
+<h4>Body</h4>
+<div>
+    <pre class="preformated-text">
+{
+    &quot;name&quot;: &quot;Rule 61df87&quot;,
+    &quot;dataset_type&quot;: &quot;test_data&quot;,
+    &quot;field_name&quot;: &quot;name&quot;,
+    &quot;rule_type&quot;: &quot;NOT_NULL&quot;,
+    &quot;severity&quot;: &quot;HIGH&quot;
+}    </pre>
+</div>
+
+<h4>Headers</h4>
+<div>
+        <div>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJxYV8yM2JmZDVlOEBkYXRhcHVsc2UuY29tIiwiZXhwIjoxNzczNDE0NTI4fQ.aPOhYoZRa0msnuDT55w68m5JWe-Vfje7Ll35sNTDrqg</div>
+        <div>Accept: */*</div>
+        <div>Content-Type: application/json</div>
+</div>
+
+
+
+<h4>Curl</h4>
+<div>
+curl -v -X POST &#39;http://datapulse-alb-prod-253557199.eu-west-1.elb.amazonaws.com/api/rules&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJxYV8yM2JmZDVlOEBkYXRhcHVsc2UuY29tIiwiZXhwIjoxNzczNDE0NTI4fQ.aPOhYoZRa0msnuDT55w68m5JWe-Vfje7Ll35sNTDrqg&#39; -H &#39;Accept: */*&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;name&quot;: &quot;Rule 61df87&quot;,
+    &quot;dataset_type&quot;: &quot;test_data&quot;,
+    &quot;field_name&quot;: &quot;name&quot;,
+    &quot;rule_type&quot;: &quot;NOT_NULL&quot;,
+    &quot;severity&quot;: &quot;HIGH&quot;
+}&#39;
+</div>
