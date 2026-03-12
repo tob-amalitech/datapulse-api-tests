@@ -20,8 +20,8 @@ permissions:
 env:
   # Set PUBLISH_ONLY to 'true' in repo Variables (Settings → Variables → Actions)
   # to always skip tests and just publish committed results.
-  # Flip it back to 'false' once your API is deployed.
-  PUBLISH_ONLY: ${{ vars.PUBLISH_ONLY || 'true' }}
+  # Flip back to 'false' once your API is deployed.
+  PUBLISH_ONLY: ${{ vars.PUBLISH_ONLY || 'false' }}
 
 jobs:
   test:
@@ -66,14 +66,40 @@ jobs:
             cp -r gh-pages/history/. target/allure-results/history/
           fi
 
+      - name: Install Allure CLI
+        if: always()
+        run: |
+          curl -sLo allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -xzf allure.tgz
+          sudo mv allure-2.27.0 /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
+
       - name: Generate Allure report
         if: always()
-        uses: simple-elf/allure-report-action@v1.9
-        with:
-          allure_results: target/allure-results
-          allure_report: allure-report
-          allure_history: allure-history
-          keep_reports: 20
+        run: |
+          allure generate target/allure-results \
+            --clean \
+            --output allure-report
+
+      - name: Prepare Pages output
+        if: always()
+        run: |
+          mkdir -p allure-history
+          # Each run gets its own subfolder for history browsing
+          cp -r allure-report allure-history/${{ github.run_number }}
+          # Root index redirects to the latest run
+          cat > allure-history/index.html <<EOF
+          <!DOCTYPE html>
+          <meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url=./${{ github.run_number }}/index.html">
+          EOF
+          # Carry history data forward so trend graphs keep working
+          if [ -d "gh-pages/history" ]; then
+            cp -r gh-pages/history allure-history/${{ github.run_number }}/history
+          fi
+          if [ -d "allure-report/history" ]; then
+            cp -r allure-report/history allure-history/history
+          fi
 
       - name: Deploy report to GitHub Pages
         if: always()
@@ -82,6 +108,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
+          keep_files: true
 
       - name: Post report URL to summary
         if: always()
@@ -94,5 +121,5 @@ jobs:
           echo "🔗 [View full Allure report](https://${OWNER}.github.io/${REPO_NAME})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "$PUBLISH_ONLY" = "true" ]; then
-            echo "> ⚠️ Published from committed results — tests were skipped (API not yet deployed)" >> $GITHUB_STEP_SUMMARY
+            echo "> ⚠️ Published from committed results — tests were skipped" >> $GITHUB_STEP_SUMMARY
           fi
